@@ -1,0 +1,55 @@
+body{
+    background:url(../img/back.jpg) ;
+}
+
+
+
+/*--------index--------*/
+.anm-row{
+    background:rgba(1,1,1,0.7);
+    padding: 50px;
+    border-radius: 20px;
+    border:1px solid #ccc
+}
+.anm-row .form-control{
+    background:transparent;
+    color: whitesmoke;
+}
+.anm-row .col{
+    padding: 50px;
+}
+.anm-row .log{
+    border-right:1px solid #ccc ;
+}
+
+
+
+/*--------home--------*/
+.liste{
+    background:rgba(1,1,1,0.5);
+    border-radius:10px;
+    border:1px solid #ccc;
+    height:80vh;
+    overflow:scroll;
+    margin-top:vh
+}
+.card-deck{
+    margin:0;
+    margin-top:10px;
+    margin-bottom:10px
+
+}
+.opt{
+    opacity: 0;
+    -webkit-transitionn: .2s ease;
+    -moz-transition: .2s ease;
+    -o-transition: .2s ease;
+    transition: .2s ease;
+}
+.card-deck:hover .opt{
+    opacity: 1;
+    -webkit-transitionn: .2s ease;
+    -moz-transition: .2s ease;
+    -o-transition: .2s ease;
+    transition: .2s ease;
+}
