@@ -1,5 +1,24 @@
 <?php
 include "init.php";
+session_start();
+if(!isset($_SESSION['name'])){
+    session_destroy();
+    header('location:index.php');
+    exit;
+}elseif(isset($_SESSION['name'])){
+    $chek=$conn->prepare("SELECT COUNT(*) FROM tb_pass where name=?");
+    $chek->execute(array(($_SESSION['name'])));
+    $count=$chek->fetchColumn();
+    if ($count == 0){
+        session_destroy();
+        header('location:index.php');
+        exit;
+    }
+}
+
+
+
+
 if (!isset($_GET['do'])){
 ?>
 <nav class="navbar navbar-dark bg-rark justify-content-between">
@@ -15,7 +34,11 @@ if (!isset($_GET['do'])){
                             ");
     $stmt->execute();
     $count = $stmt->fetchAll();
-    echo '<div class="container liste" style="">';
+    $count1 = $stmt->rowCount();
+    $rowcount = $count1 == 0 ?'<label for="add" class="text-warning"style="font-size:50px">Füge ein Task hinzu</label>':'';
+    
+    echo '<div class="container liste">';
+    echo $rowcount ;
     foreach ( $count as $count ){
         if ($count['status']==0){
             $border = "#ccc";
@@ -34,7 +57,7 @@ if (!isset($_GET['do'])){
         <div class="card-deck col-12" >
             <div class="card" style="border-left:5px solid '.$border.'">
                 <div class="card-body row">
-                    <h5 class="card-title col-2" style="border-right:1px solid black">id : '.$count["id"].'<br>'.$count["title"].'</h5>
+                    <h5 class="card-title col-2" style="border-right:1px solid black"><a class="id">id : '.$count["id"].'</a> <br>'.$count["title"].'</h5>
                     <p class="card-text col-10">'.$count["text"].'</p>
                 </div>
             </div>
@@ -44,7 +67,7 @@ if (!isset($_GET['do'])){
                 <a class="btn btn-outline-danger opt" href="?do=status&set=3&id='.$count["id"].'"><i class="fas fa-folder-open"></i></a><br><br>
                 <a class="btn btn-block btn-outline-danger opt" href="?do=del&id='.$count["id"].'"><i class="fas fa-times-circle"></i> DEL </a>
             </div>
-            </div>
+        </div>
         ';
     }
     ?>
@@ -60,7 +83,7 @@ if (!isset($_GET['do'])){
                 <div class="row">
                     <input type="text" class="col-2 " placeholder="title" name="title" maxlength="14" required>
                     <textarea type="text" class="col-9 " placeholder="text" name="text" required></textarea>
-                    <button class="btn btn-outline-primary col-1">ADD</button>
+                    <button id="add" class="btn btn-outline-primary col-1">ADD</button>
                 </div>
             </div>
         </form>
@@ -69,6 +92,7 @@ if (!isset($_GET['do'])){
 <?php 
 }elseif (isset($_GET['do'])) {
     $do = $_GET['do'];
+    //------------------task hizufugen
     if ($do == "add" ){
         $title= $_POST['title'];
         $text = $_POST['text'];
@@ -80,7 +104,7 @@ if (!isset($_GET['do'])){
         ));
         header('location:home.php');
         exit();
-    }
+    }//----------------task status
     if($do == "status"){
         $set=$_GET['set'];
         $id=$_GET['id'];
@@ -88,7 +112,7 @@ if (!isset($_GET['do'])){
         $stmt->execute(array($set,$id));
         header('location: home.php');
         exit();
-    }
+    }//----------------task löschen
     if($do == "del"){
         $id=$_GET['id'];
         $stmt = $conn->prepare("DELETE FROM tb_todo WHERE id =?");

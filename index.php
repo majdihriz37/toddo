@@ -1,3 +1,20 @@
+<?php 
+include "init.php";
+session_start();
+if (isset($_SESSION['name'])){
+    $stmt=$conn->prepare("SELECT COUNT(*) FROM tb_pass where name=?");
+    $stmt->execute(array(($_SESSION['name'])));
+    $count=$stmt->fetchColumn();
+    if ($count == 1){
+        header('location:home.php');
+        exit;
+    }
+}
+?>
+
+
+
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,15 +25,15 @@
 </head>
 <body>
 <?php
-include "init.php";
 if (!isset($_GET['do'])){
 ?>
     <div class="container text-center">
     <br><br><br>
-        <h1 class="" >TO-DO</h1>
+        <h1 class="text-info" >TO-DO</h1>
         <br><br>
         <div class="row anm-row">
             <div class="col log">
+                <h2 class="text-success" >anmelden</h2><br>
                 <form action="?do=log" method="POST">
                     <div class="form-group row">
                         <div class="col-sm-12">
@@ -26,7 +43,7 @@ if (!isset($_GET['do'])){
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <input type="password" class="form-control" id="anm-Password" placeholder="Password" name="pass" required>
+                            <input type="password" class="form-control" id="anm-Password" placeholder="Password" name="pass" required autocomplete="off">
                         </div>
                     </div>
                     <button type="submit" class="btn btn-outline-success btn-block" name="sub">anmelden</button>
@@ -34,10 +51,11 @@ if (!isset($_GET['do'])){
             </div>
 
             <div class="col">
+                <h2 class="text-primary" >registriere dich jetzt</h2><br>
                 <form action="?do=reg" method="POST">
                     <div class="form-group row">
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="anm-email" placeholder="Username" name="name" required>
+                            <input type="text" class="form-control" id="anm-email" placeholder="Username" name="name" required autocomplete="off">
                         </div>
                     </div>
                     <div class="form-group row">
@@ -58,11 +76,25 @@ if (!isset($_GET['do'])){
             $salt = strval(rand(1000,9999));
             $name = filter_var( $_POST['name'],   FILTER_SANITIZE_STRING);
             $pass = $_POST['pass'];
+
+            $stmt=$conn->prepare("SELECT COUNT(*) FROM tb_pass where name=?");
+            $stmt->execute(array($name));
+            $count=$stmt->fetchColumn();
+            if ($count > 0){
+                echo
+                '<div class=" container alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Bitte wähle anderen namen</strong> <br> <br><button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </div>';
+                header('Refresh: 1; url=index.php');
+                exit();
+            };
+
             $stmt =  $conn->prepare("INSERT INTO tb_pass(name,password)VALUE (:iName, :ipass)");
             $stmt ->execute(array(
             'iName'          => $name,
             'ipass'          => hash("sha512",$salt.$pass.$salt)
             ));
+
             $stmt1 =  $conn->prepare("INSERT INTO tb_salt(name,salt) VALUE (:iName, :ipass)");
             $stmt1 ->execute(array(
             'iName'          => $name,
@@ -95,8 +127,9 @@ if (!isset($_GET['do'])){
         $stmt1  ->execute(array($name,$hashedpass));
         $count = $stmt1->rowCount();
         if ($count > 0 ){
+            session_start();
+            $_SESSION['name'] = $name;
             header('Location: home.php');
-            exit();
         }else{
             echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
             <strong>LEIDER SIND SIE NOCH NICHT ANGEMELDET</strong>

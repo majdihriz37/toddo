@@ -21,13 +21,13 @@
                           FOREIGN KEY(name) REFERENCES tb_pass(name)
                           ON DELETE CASCADE
                           )");
-        $conn ->exec("CREATE TABLE IF NOT EXISTS tb_todo(
-                          id int(5) AUTO_INCREMENT,
-                          title varchar(15) NOT NULL UNIQUE, 
-                          text VARCHAR(100) NOT NULL,
-                          FOREIGN KEY(id) REFERENCES tb_pass(id)
-                          ON DELETE CASCADE
-                          )");
+        $conn ->exec("CREATE TABLE IF NOT EXISTS tb_todo (
+                          id int(5) PRIMARY KEY AUTO_INCREMENT ,
+                          title varchar(15) NOT NULL,
+                          text text NOT NULL,
+                          status int(5) NOT NULL DEFAULT '0'
+                          )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                                              )");
 
       }catch(PDOException $e){
         echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -39,3 +39,5 @@
       '. $e->getMessage().'</div>';
       }
 ?>
+
+
